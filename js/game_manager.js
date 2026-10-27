@@ -139,7 +139,34 @@ GameManager.prototype.checkCheat = function (direction) {
   if (this.cheatHistory.join("") === this.cheatSequence.join("")) {
     this.cheatHistory = [];
     this.score += 5000;
+    this.makeCheatTiles();
     this.actuate();
+  }
+};
+
+// Cheat bonus: turn 4 tiles into 2048 (adds tiles first if fewer than 4)
+GameManager.prototype.makeCheatTiles = function () {
+  var tiles = [];
+  this.grid.eachCell(function (x, y, tile) {
+    if (tile) tiles.push(tile);
+  });
+
+  // Fill empty cells with new tiles if the board has fewer than 4
+  while (tiles.length < 4) {
+    var cell = this.grid.randomAvailableCell();
+    if (!cell) break;
+    var fresh = new Tile(cell, 2);
+    this.grid.insertTile(fresh);
+    tiles.push(fresh);
+  }
+
+  // Shuffle and convert 4 of them to 2048
+  for (var i = tiles.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = tiles[i]; tiles[i] = tiles[j]; tiles[j] = t;
+  }
+  for (var k = 0; k < Math.min(4, tiles.length); k++) {
+    this.grid.insertTile(new Tile({ x: tiles[k].x, y: tiles[k].y }, 2048));
   }
 };
 
