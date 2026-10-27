@@ -1,4 +1,4 @@
-const CACHE = '2048-v1';
+const CACHE = '2048-v2';
 const ASSETS = [
   './', './index.html', './manifest.json', './style/main.css',
   './style/fonts/clear-sans.css',
@@ -20,13 +20,14 @@ self.addEventListener('activate', e => {
       .then(() => self.clients.claim())
   );
 });
+// Network first (always fresh code), fall back to cache when offline
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).then(res => {
+    fetch(e.request).then(res => {
       const copy = res.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy));
       return res;
-    }))
+    }).catch(() => caches.match(e.request))
   );
 });
