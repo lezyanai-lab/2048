@@ -1,4 +1,4 @@
-const CACHE = '2048-v2';
+const CACHE = '2048-v3';
 const ASSETS = [
   './', './index.html', './manifest.json', './style/main.css',
   './style/fonts/clear-sans.css',
@@ -24,7 +24,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    fetch(e.request).then(res => {
+    fetch(e.request, { cache: 'no-cache' }).then(res => {
       const copy = res.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy));
       return res;
