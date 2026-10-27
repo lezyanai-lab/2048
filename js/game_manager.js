@@ -126,12 +126,31 @@ GameManager.prototype.moveTile = function (tile, cell) {
   tile.updatePosition(cell);
 };
 
+// Cheat: 5x up, 5x down, 5x right, 5x left in a row gives +5000 points
+GameManager.prototype.cheatSequence = [0,0,0,0,0, 2,2,2,2,2, 1,1,1,1,1, 3,3,3,3,3];
+
+GameManager.prototype.checkCheat = function (direction) {
+  this.cheatHistory = this.cheatHistory || [];
+  this.cheatHistory.push(direction);
+  if (this.cheatHistory.length > this.cheatSequence.length) {
+    this.cheatHistory.shift();
+  }
+
+  if (this.cheatHistory.join("") === this.cheatSequence.join("")) {
+    this.cheatHistory = [];
+    this.score += 5000;
+    this.actuate();
+  }
+};
+
 // Move tiles on the grid in the specified direction
 GameManager.prototype.move = function (direction) {
   // 0: up, 1: right, 2: down, 3: left
   var self = this;
 
   if (this.isGameTerminated()) return; // Don't do anything if the game's over
+
+  this.checkCheat(direction);
 
   var cell, tile;
 
